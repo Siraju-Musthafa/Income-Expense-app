@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import Transactions from "./pages/Transaction";
 import Navbar from "./components/Navbar";
 import Income from "./pages/Income";
 import Expense from "./pages/Expense";
@@ -27,7 +26,6 @@ function Layout() {
         <Route path="/dashboard" element={<Dashboard />} />
          <Route path="/income" element={<Income />} />
           <Route path="/expense" element={<Expense />} />
-        <Route path="/transactions" element={<Transactions />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/categories" element={<Categories />} />
         <Route></Route>
