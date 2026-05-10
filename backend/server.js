@@ -13,7 +13,7 @@ const app = express();
 connectDB();
 
 app.use(cors({
-    origin: process.env.VITE_API_URL,
+    origin: process.env.FRONTEND_URL,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }))
