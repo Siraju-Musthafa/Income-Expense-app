@@ -14,6 +14,7 @@ connectDB();
 
 app.use(cors({
     origin: process.env.VITE_API_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }))
 app.use(express.json());
