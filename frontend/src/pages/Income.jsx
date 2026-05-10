@@ -6,10 +6,20 @@ import {
 } from "../services/transaction.service";
 
 import { getCategories } from "../services/category.service";
+import {createcategory} from '../services/category.service'
 
 function Income() {
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [msg, setMsg] = useState({ type: "", text: "" });
+
+  // Helper to show message and auto-hide it after 3 seconds
+  const showMessage = (type, text) => {
+    setMsg({ type, text });
+    setTimeout(() => setMsg({ type: "", text: "" }), 3000);
+  };
 
   const [form, setForm] = useState({
     type: "income",
@@ -30,10 +40,7 @@ function Income() {
 
       setCategories(incomeCategories);
     } catch (error) {
-      alert(
-        error.response?.data?.message ||
-          "Error loading categories"
-      );
+      showMessage("error", error.response?.data?.message || "Error loading categories");
     }
   };
 
@@ -48,6 +55,30 @@ function Income() {
       );
     }
   };
+
+  const handleCategoryChange = (e) => {
+  if (e.target.value === "CREATE_NEW") {
+    setIsModalOpen(true);
+  } else {
+    setForm({ ...form, category: e.target.value });
+  }
+};
+
+// Function to handle creating the category
+const handleCreateCategory = async () => {
+  if (!newCategoryName.trim()) return;
+  try {
+    // Replace with your actual service call
+    await createcategory({ name: newCategoryName, type: 'income' });
+    
+    await fetchCategories(); // Refresh the list
+    setForm({ ...form, category: newCategoryName }); // Select the new one
+    setIsModalOpen(false);
+    setNewCategoryName("");
+    showMessage("success", "Category created successfully!");
+  } catch (error) {
+    showMessage(error, "Error creating category");  }
+};
 
   useEffect(() => {
     fetchTransactions();
@@ -81,12 +112,9 @@ function Income() {
 
       fetchTransactions();
 
-      alert("Transaction added successfully");
-    } catch (error) {
-      alert(
-        error.response?.data?.message ||
-          "Error adding transaction"
-      );
+      showMessage("success", "Transaction added successfully");
+     } catch (error) {
+      showMessage("error", error.response?.data?.message || "Error adding transaction");
     }
   };
 
@@ -95,16 +123,22 @@ function Income() {
       await deleteIncome(id);
 
       fetchTransactions();
+      showMessage("success", "Transaction deleted");
     } catch (error) {
-      alert(
-        error.response?.data?.message ||
-          "Error deleting transaction"
-      );
+      showMessage(error, "Error deleting transaction");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 md:pl-64">
+
+      {msg.text && (
+        <div className={`fixed top-5 right-5 z-[100] flex items-center gap-3 rounded-xl px-6 py-4 shadow-2xl transition-all animate-bounce
+          ${msg.type === "success" ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+          <span className="font-medium">{msg.text}</span>
+          <button onClick={() => setMsg({ type: "", text: "" })} className="ml-4 opacity-70 hover:opacity-100">✕</button>
+        </div>
+      )}
       
       {/* Header */}
       <header className="flex h-20 items-center border-b bg-white px-4 md:px-8">
@@ -159,18 +193,16 @@ function Income() {
               <select
                 name="category"
                 value={form.category}
-                onChange={handleChange}
-                className="h-12 w-full rounded-xl border px-4"
+                onChange={handleCategoryChange} // Use the custom handler
+                className="h-12 w-full rounded-xl border px-4 bg-white"
               >
-                <option value="">
-                  Select Category
+                <option value="">Select Category</option>
+                <option value="CREATE_NEW" className="font-bold text-cyan-600">
+                  + Create New Category
                 </option>
-
+                <hr />
                 {categories.map((category) => (
-                  <option
-                    key={category._id}
-                    value={category.name}
-                  >
+                  <option key={category._id} value={category.name}>
                     {category.name}
                   </option>
                 ))}
@@ -323,6 +355,39 @@ function Income() {
           </div>
         </div>
       </main>
+
+      {/* New Category Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="mb-4 text-xl font-bold text-gray-800">New Category</h3>
+
+            <input
+              type="text"
+              placeholder="Category Name (e.g. Salary, Bonus)"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              className="mb-6 h-12 w-full rounded-xl border px-4 focus:border-cyan-500 focus:outline-none"
+              autoFocus
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 rounded-xl bg-gray-100 py-3 font-semibold text-gray-600 hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateCategory}
+                className="flex-1 rounded-xl bg-cyan-600 py-3 font-semibold text-white hover:bg-cyan-700"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

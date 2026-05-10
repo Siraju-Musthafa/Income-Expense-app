@@ -42,42 +42,41 @@ function Register() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  const error = validateForm();
+  if (error) {
+    setMessage({ type: "error", text: error });
+    return;
+  }
 
-    const error = validateForm();
+  try {
+    setLoading(true);
+    const data = await registerUser(form);
 
-    if (error) {
-      setMessage({
-        type: "error",
-        text: error,
-      });
-
-      return;
+    // SAVE THE TOKEN HERE
+    if (data.token) {
+      localStorage.setItem("token", data.token);
     }
 
-    try {
-      setLoading(true);
+    setMessage({
+      type: "success",
+      text: "Account created! Redirecting to dashboard...",
+    });
 
-      await registerUser(form);
+    // Redirect to dashboard after a short delay
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 1500);
 
-      setMessage({
-        type: "success",
-        text: "Registered successfully. Redirecting to login...",
-      });
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 1000);
-    } catch (err) {
-      setMessage({
-        type: "error",
-        text:
-          err.response?.data?.message || "Registration failed",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    setMessage({
+      type: "error",
+      text: err.response?.data?.message || "Registration failed",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-6">
