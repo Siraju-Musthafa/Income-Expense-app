@@ -19,6 +19,10 @@ function Expense() {
     date: "",
     note: "",
   });
+  const [message, setMessage] = useState({
+  type: "",
+  text: "",
+});
 
   const fetchTransactions = async () => {
     try {
@@ -76,18 +80,23 @@ function Expense() {
         title: "",
         amount: "",
         category: "",
-        date: "",
+        date: new Date().toISOString().split("T")[0],
         note: "",
       });
 
       fetchTransactions();
 
-      alert("Transaction added successfully");
+      setMessage({
+        type: "success",
+        text: "Transaction added successfully",
+      });
     } catch (error) {
-      alert(
-        error.response?.data?.message ||
-          "Error adding transaction"
-      );
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message ||
+          "Error adding transaction",
+      });
     }
   };
 
@@ -125,7 +134,17 @@ function Expense() {
             <h3 className="mb-5 text-lg font-semibold">
               Add New Expense
             </h3>
-
+             
+            {message.text && (
+              <div
+                className={`mb-5 rounded-xl border px-4 py-3 text-sm font-medium ${message.type === "success"
+                    ? "border-green-200 bg-green-50 text-green-700"
+                    : "border-red-200 bg-red-50 text-red-600"
+                  }`}
+              >
+                {message.text}
+              </div>
+            )}
             <form
               onSubmit={handleSubmit}
               className="space-y-4"

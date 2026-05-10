@@ -7,6 +7,8 @@ function Login() {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const navigate = useNavigate();
 
@@ -15,19 +17,26 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const data = await loginUser(form);
+  setError("");
+  setSuccess("");
 
-      localStorage.setItem("token", data.token);
+  try {
+    const data = await loginUser(form);
 
-      alert("Login successful");
+    localStorage.setItem("token", data.token);
+
+    setSuccess("Login successful");
+
+    setTimeout(() => {
       navigate("/dashboard");
-    } catch (err) {
-      alert(err.response?.data?.message || "Error");
-    }
-  };
+    }, 1500);
+
+  } catch (err) {
+    setError(err.response?.data?.message || "Something went wrong");
+  }
+};
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-6">
@@ -37,7 +46,7 @@ function Login() {
         {/* Logo / Title */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-cyan-600 md:text-4xl">
-            FinTrack
+            MoneyMap
           </h1>
 
           <p className="mt-2 text-sm text-gray-500">
@@ -49,6 +58,19 @@ function Login() {
         <h2 className="mb-6 text-center text-2xl font-bold text-gray-800 md:text-3xl">
           Login
         </h2>
+        {/* Success Message */}
+        {success && (
+          <div className="mb-4 rounded-lg bg-green-100 px-4 py-3 text-sm text-green-700">
+            {success}
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-100 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
