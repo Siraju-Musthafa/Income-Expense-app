@@ -10,26 +10,42 @@ router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // ... (Keep your existing validation and user creation code) ...
+    // 1. Validation
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "Name, email and password are required",
+      });
+    }
 
+    // 2. Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    // 3. HASH THE PASSWORD (This is what was missing!)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 4. Create the User
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
     });
 
-    // --- ADD THIS BLOCK ---
-    // Generate token so user is "logged in" immediately after signup
+    // 5. Generate token so user is logged in immediately
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
-    // -----------------------
 
+    // 6. Send Response
     res.status(201).json({
       message: "User registered successfully",
-      token, // Send the token back to the frontend
+      token,
       user: {
         id: user._id,
         name: user.name,
@@ -37,6 +53,7 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Registration Error:", error);
     res.status(500).json({ message: error.message || "Server error" });
   }
 });
