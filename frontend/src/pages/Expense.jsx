@@ -78,7 +78,7 @@ const handleCreateCategory = async () => {
   if (!newCategoryName.trim()) return;
   try {
     // Replace with your actual service call
-    await createCategory({ name: newCategoryName, type: 'income' });
+    await createCategory({ name: newCategoryName, type: 'expense' });
     
     await fetchCategories(); // Refresh the list
     setForm({ ...form, category: newCategoryName }); // Select the new one
