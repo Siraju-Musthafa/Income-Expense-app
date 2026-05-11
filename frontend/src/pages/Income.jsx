@@ -6,7 +6,7 @@ import {
 } from "../services/transaction.service";
 
 import { getCategories } from "../services/category.service";
-import {createcategory} from '../services/category.service'
+import {createCategory} from '../services/category.service'
 
 function Income() {
   const [transactions, setTransactions] = useState([]);
@@ -49,10 +49,7 @@ function Income() {
       const data = await getIncome();
       setTransactions(data);
     } catch (error) {
-      alert(
-        error.response?.data?.message ||
-          "Error loading Income"
-      );
+      showMessage("error", error.response?.data?.message || "Error loading Income");
     }
   };
 
@@ -69,7 +66,7 @@ const handleCreateCategory = async () => {
   if (!newCategoryName.trim()) return;
   try {
     // Replace with your actual service call
-    await createcategory({ name: newCategoryName, type: 'income' });
+    await createCategory({ name: newCategoryName, type: 'income' });
     
     await fetchCategories(); // Refresh the list
     setForm({ ...form, category: newCategoryName }); // Select the new one
